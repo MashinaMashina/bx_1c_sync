@@ -1,0 +1,11 @@
+.main-wrapper {
+	padding-top: 80px;
+}
+textarea.synclog {
+	height: 500px;
+	white-space: pre;
+	font-size: 14px;
+}
+template {
+	display: none;
+}

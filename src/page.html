@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title>Bitrix 1C Sync</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+		<link rel="stylesheet" href="./style.css">
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+			<a class="navbar-brand" href="./">1C Sync</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarsExampleDefault">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a class="nav-link" href="#">Home</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">Link</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<main role="main" class="container main-wrapper">
+			<div class="row">
+				<div class="col-md-8 order-md-2 mb-4">
+					<h4 class="d-flex justify-content-between align-items-center mb-3">
+						<span class="text-muted">Логи интеграции</span>
+					</h4>
+					<div class="form-group">
+						<textarea id="sync_log" class="form-control synclog" placeholder="Пусто" readonly></textarea>
+					</div>
+					<button class="btn btn-secondary btn-sm float-md-left" onclick="syncapp.clearLog()">Очистить лог</button>
+					<div class="float-md-right text-muted">
+						<label for="sync_log_end" class="text-muted">Прокручивать в конец</label>
+						<input type="checkbox" name="sync_log_end" id="sync_log_end" checked>
+					</div>
+				</div>
+				<div class="col-md-4 order-md-1">
+					<h4 class="mb-3">Рабочая область</h4>
+					<div id="sync_alerts"></div>
+					<div id="sync_workarea"></div>
+				</div>
+			</div>
+		</main>
+		
+		<!-- Templates -->
+		<template id="sync_alerts_tpl">
+			<div class="alert alert-%type% alert-dismissible fade show" role="alert">
+				%message%
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+		</template>
+		<template id="sync_login_tpl">
+			<form method="POST">
+				<div class="form-group">
+					<label>Введите пароль
+						<input name="password" class="form-control">
+					</label>
+				</div>
+				<button class="btn btn-primary btn-sm" type="submit">Войти</button>
+			</form>
+		</template>
+		
+		<template id="sync_form_tpl">
+			<form method="POST" enctype="multipart/form-data" onsubmit="event.preventDefault(); syncapp.startSync()">
+				<div class="form-group">
+					<label for="sync_path">Адрес выгрузки</label>
+					<input type="text" name="sync_path" id="sync_path" class="form-control" placeholder="/bitrix/admin/1c_exchange.php" required value="/bitrix/admin/1c_exchange.php" />
+				</div>
+				
+				<div class="form-group">
+					<label for="sync_login">Логин пользователя для выгрузки</label>
+					<input type="text" name="sync_login" id="sync_login" class="form-control" placeholder="1c_user" required >
+				</div>
+				
+				<div class="form-group">
+					<label for="sync_passwd">Пароль пользователя для выгрузки</label>
+					<input type="password" name="sync_passwd" id="sync_passwd" class="form-control" placeholder="***" required autocomplete="on" />
+				</div>
+				
+				<div class="form-group">
+					<label for="sync_type">Выберите тип обмена</label>
+					<select name="type" id="sync_type" class="form-control" required >
+						<option value="catalog">[catalog] импорт товаров</option>
+						<option value="get_catalog">[get_catalog] экспорт товаров</option>
+						<option value="sale">[sale] заказы</option>
+						<option value="reference">[reference] справочники</option>
+					</select>
+				</div>
+				
+				<div class="form-group">
+					<label for="sync_type">Выберите опрацию</label>
+					<select name="type" id="sync_operation" class="form-control" required >
+						<option value="import">[import] Импорт из файла на сайт</option>
+						<option value="query">[query] Экспорт с сайта в файл</option>
+						<option value="info">[info] Получение справочников магазина</option>
+					</select>
+				</div>
+				
+				<div class="form-group">
+					<label for="sync_file">Выберите файл</label>
+					 <input type="file" class="form-control-file" name="sync_file" id="sync_file" onchange="syncapp.onFileSelect()">
+				</div>
+				
+				<div class="form-group" id="sync_zipfile_block" style="display: none;">
+					<label for="sync_zipfile">Имя файла в архиве</label>
+					 <input type="text" class="form-control" name="sync_zipfile" id="sync_zipfile" >
+				</div>
+				
+				<button class="btn btn-primary" type="submit">Выполнить</button>
+			</form>
+		</template>
+		
+		<!-- /Templates -->
+		
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+		<script src="./plugins.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="./script.js"></script>
+		<script src="./sync.js"></script>
+		<script>
+			syncapp.init({
+				frontfile: './<?=$app->getConfig("frontfile")?>',
+				serverdir: '/',
+				pwdhash: '<?=$app->getConfig("pwdhash")?>',
+				needauth: '<?=$app->getConfig("needauth")?>'
+			});
+		</script>
+		
+		
+		<?php if ($app->getConfig('password') === ''): ?>
+			<script>syncapp.showAlert('danger', 'Укажите пароль в текущем файле');</script>
+		<?php endif; ?>
+		
+		<?php if (isset($_POST['password'])): ?>
+			<script>syncapp.showAlert('danger', 'Не верный пароль');</script>
+		<?php endif; ?>
+		
+		<?php if (! $app->getConfig("needauth")): ?>
+			<script>syncapp.start();</script>
+		<?php endif; ?>
+		
+	</body>
+</html>
