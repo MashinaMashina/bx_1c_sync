@@ -43,6 +43,10 @@ sync.start = function (params) {
 			sync.nextQueue([
 				sync.runCheckAuth,
 				sync.runInit,
+				sync.runQuery,
+				sync.runQuery,
+				sync.runQuery,
+				sync.runQuery,
 				sync.runQuery
 			], false);
 			break;

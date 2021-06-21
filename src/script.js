@@ -28,6 +28,35 @@ syncapp.start = function()
 }
 
 /*
+ * Переключение видимости зависимых элементов
+ */
+syncapp.toggleDependencies = function(select)
+{
+	var name = $(select).prop('name');
+	
+	$('option', select).each(function(){
+		var option = this;
+		$('.for-' + name + '-' + $(option).val()).hide();
+	});
+	
+	$('.for-' + name + '-' + $(select).val()).show();
+}
+
+/*
+ * Выбирает в select первый не скрытый вариант
+ */
+syncapp.updateSelect = function(select)
+{
+	$('option', select).each(function () {
+		if ($(this).css('display') != 'none') {
+			$(this).prop("selected", true);
+			return false;
+		}
+	});
+	$(select).change();
+}
+
+/*
  * Запуск операции обмена
  */
 syncapp.startSync = function()
@@ -68,17 +97,6 @@ syncapp.writeLog = function(message) {
  */
 syncapp.clearLog = function() {
 	$('#sync_log').val('');
-}
-
-/*
- * Событие на выборе файла
- */
-syncapp.onFileSelect = function() {
-	if ($('#sync_file')[0].files[0].type === 'application/x-zip-compressed') {
-		$('#sync_zipfile_block').show();
-	} else {
-		$('#sync_zipfile_block').hide();
-	}
 }
 
 /*

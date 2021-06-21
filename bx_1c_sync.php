@@ -157,7 +157,7 @@ if (! empty($_POST) and ! empty($_GET['method']))
 		<title>Bitrix 1C Sync</title>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 		<style>.main-wrapper {
-	padding-top: 80px;
+	padding-top: 50px;
 }
 textarea.synclog {
 	height: 500px;
@@ -169,21 +169,8 @@ template {
 }</style>
 	</head>
 	<body>
-		<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-			<a class="navbar-brand" href="./">1C Sync</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarsExampleDefault">
-				<ul class="navbar-nav mr-auto">
-					<li class="nav-item active">
-						<a class="nav-link" href="#">Home</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Link</a>
-					</li>
-				</ul>
-			</div>
+		<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+			<a class="navbar-brand" href="./">BX 1C Sync</a>
 		</nav>
 		<main role="main" class="container main-wrapper">
 			<div class="row">
@@ -247,29 +234,42 @@ template {
 				
 				<div class="form-group">
 					<label for="sync_type">Выберите тип обмена</label>
-					<select name="type" id="sync_type" class="form-control" required >
-						<option value="catalog">[catalog] импорт товаров</option>
-						<option value="get_catalog">[get_catalog] экспорт товаров</option>
-						<option value="sale">[sale] заказы</option>
-						<option value="reference">[reference] справочники</option>
+					<select name="sync_type" id="sync_type" class="form-control" required onchange="syncapp.toggleDependencies(this); syncapp.updateSelect('#sync_operation')">
+						<option value="catalog">[catalog] Импорт товаров</option>
+						<option value="get_catalog">[get_catalog] Экспорт товаров</option>
+						<option value="sale">[sale] Заказы</option>
+						<option value="reference">[reference] Справочники</option>
 					</select>
 				</div>
 				
 				<div class="form-group">
-					<label for="sync_type">Выберите опрацию</label>
-					<select name="type" id="sync_operation" class="form-control" required >
-						<option value="import">[import] Импорт из файла на сайт</option>
-						<option value="query">[query] Экспорт с сайта в файл</option>
-						<option value="info">[info] Получение справочников магазина</option>
+					<label for="sync_operation">Выберите опрацию</label>
+					<select name="sync_operation" id="sync_operation" class="form-control" required onchange="syncapp.toggleDependencies(this)">
+					
+						<option value="import" class="
+							for-sync_type-catalog
+							for-sync_type-sale
+							for-sync_type-reference
+						">[import] Импорт из файла на сайт</option>
+						
+						<option value="query" class="
+							for-sync_type-sale
+							for-sync_type-get_catalog
+						" style="display:none">[query] Экспорт с сайта в файл</option>
+						
+						<option value="info" class="
+							for-sync_type-sale
+						" style="display:none">[info] Получение справочников магазина</option>
+						
 					</select>
 				</div>
 				
-				<div class="form-group">
+				<div class="form-group for-sync_operation-import">
 					<label for="sync_file">Выберите файл</label>
-					 <input type="file" class="form-control-file" name="sync_file" id="sync_file" onchange="syncapp.onFileSelect()">
+					<input type="file" class="form-control-file" name="sync_file" id="sync_file">
 				</div>
 				
-				<div class="form-group" id="sync_zipfile_block" style="display: none;">
+				<div class="form-group for-sync_operation-import">
 					<label for="sync_zipfile">Имя файла в архиве</label>
 					 <input type="text" class="form-control" name="sync_zipfile" id="sync_zipfile" >
 				</div>
@@ -426,6 +426,35 @@ syncapp.start = function()
 }
 
 /*
+ * Переключение видимости зависимых элементов
+ */
+syncapp.toggleDependencies = function(select)
+{
+	var name = $(select).prop('name');
+	
+	$('option', select).each(function(){
+		var option = this;
+		$('.for-' + name + '-' + $(option).val()).hide();
+	});
+	
+	$('.for-' + name + '-' + $(select).val()).show();
+}
+
+/*
+ * Выбирает в select первый не скрытый вариант
+ */
+syncapp.updateSelect = function(select)
+{
+	$('option', select).each(function () {
+		if ($(this).css('display') != 'none') {
+			$(this).prop("selected", true);
+			return false;
+		}
+	});
+	$(select).change();
+}
+
+/*
  * Запуск операции обмена
  */
 syncapp.startSync = function()
@@ -466,17 +495,6 @@ syncapp.writeLog = function(message) {
  */
 syncapp.clearLog = function() {
 	$('#sync_log').val('');
-}
-
-/*
- * Событие на выборе файла
- */
-syncapp.onFileSelect = function() {
-	if ($('#sync_file')[0].files[0].type === 'application/x-zip-compressed') {
-		$('#sync_zipfile_block').show();
-	} else {
-		$('#sync_zipfile_block').hide();
-	}
 }
 
 /*
@@ -597,6 +615,10 @@ sync.start = function (params) {
 			sync.nextQueue([
 				sync.runCheckAuth,
 				sync.runInit,
+				sync.runQuery,
+				sync.runQuery,
+				sync.runQuery,
+				sync.runQuery,
 				sync.runQuery
 			], false);
 			break;
