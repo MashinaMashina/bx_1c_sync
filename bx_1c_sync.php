@@ -7,7 +7,7 @@ About script: https://github.com/MashinaMashina/bx_1c_sync
 /*
  * Далее ввести пароль
  */
-$password = '1';
+$password = '';
 
 
  /* app.php => */ ?><?php
@@ -36,7 +36,7 @@ class Syncapp
 	
 	public function getPwdHash($password)
 	{
-		return md5($_SERVER['REMOTE_ADDR'] . $password . '~y1w%axZiYB8s%Gs{L6p8N2Vuup7~z');
+		return md5($_SERVER['REMOTE_ADDR'] . $password . '~1bc');
 	}
 	
 	public function checkPwdhash($pwdhash)
@@ -123,7 +123,7 @@ $app->setConfig('frontfile', basename(__FILE__));
 $app->setConfig('password', $password);
 
 $pwdhash = isset($_GET['pwdhash']) ? $_GET['pwdhash'] : null;
-if ($app->getConfig('password') !== '' and ! $app->checkPwdhash($pwdhash))
+if (! $app->checkPwdhash($pwdhash))
 {
 	if (! empty($_POST['password']) and $_POST['password'] === $app->getConfig('password'))
 	{
@@ -643,13 +643,13 @@ sync.start = function (params) {
 /*
  * Переход к следующему шагу в очереди
  */
-sync.nextQueue = function (queue, next_step) {
-	if (typeof next_step === 'undefined')
+sync.nextQueue = function (queue, go_next_step) {
+	if (typeof go_next_step === 'undefined')
 	{
 		var next_step = true;
 	}
 	
-	if (next_step)
+	if (go_next_step)
 	{
 		queue.shift();
 	}
