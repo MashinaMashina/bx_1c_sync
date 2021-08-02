@@ -2,7 +2,7 @@
 /*
  * Далее ввести пароль
  */
-$password = '1';
+$password = '';
 
 
 require('./app.php');
@@ -13,7 +13,7 @@ $app->setConfig('frontfile', basename(__FILE__));
 $app->setConfig('password', $password);
 
 $pwdhash = isset($_GET['pwdhash']) ? $_GET['pwdhash'] : null;
-if ($app->getConfig('password') !== '' and ! $app->checkPwdhash($pwdhash))
+if (! $app->checkPwdhash($pwdhash))
 {
 	if (! empty($_POST['password']) and $_POST['password'] === $app->getConfig('password'))
 	{

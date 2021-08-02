@@ -24,7 +24,7 @@ class Syncapp
 	
 	public function getPwdHash($password)
 	{
-		return md5($_SERVER['REMOTE_ADDR'] . $password . '~y1w%axZiYB8s%Gs{L6p8N2Vuup7~z');
+		return md5($_SERVER['REMOTE_ADDR'] . $password . '~1bc');
 	}
 	
 	public function checkPwdhash($pwdhash)

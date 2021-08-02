@@ -71,13 +71,13 @@ sync.start = function (params) {
 /*
  * Переход к следующему шагу в очереди
  */
-sync.nextQueue = function (queue, next_step) {
-	if (typeof next_step === 'undefined')
+sync.nextQueue = function (queue, go_next_step) {
+	if (typeof go_next_step === 'undefined')
 	{
 		var next_step = true;
 	}
 	
-	if (next_step)
+	if (go_next_step)
 	{
 		queue.shift();
 	}
