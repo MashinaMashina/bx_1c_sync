@@ -646,7 +646,7 @@ sync.start = function (params) {
 sync.nextQueue = function (queue, go_next_step) {
 	if (typeof go_next_step === 'undefined')
 	{
-		var next_step = true;
+		var go_next_step = true;
 	}
 	
 	if (go_next_step)
