@@ -6,3 +6,5 @@
 
     wget https://raw.githubusercontent.com/MashinaMashina/bx_1c_sync/master/bx_1c_sync.php
 Готово, запустите скрипт из браузера.
+
+[Обзор скрипта для запуска интеграции 1С и сайта bx_1c_sync.php](https://r-morozov.ru/bitrix/otladka-integracii-bitriks-i-1s-skriptom-bx_1c_sync-php/)
