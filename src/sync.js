@@ -265,6 +265,8 @@ sync.runCheckAuth = function(queue) {
 		if (data[0] !== 'success')
 		{
 			sync.setError('Не удалось авторизоваться. Проверьте логин и пароль');
+			syncapp.writeLog('Первые 500 символов ответа:');
+			syncapp.writeLog(result.substr(0, 500));
 			return;
 		}
 		
